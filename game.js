@@ -1,6 +1,8 @@
 //Initialized variables
 let is_game_running = false; 
 let score = 0;
+let winSound = new Audio('https://www.soundjay.com/buttons/sounds/button-12.mp3');
+let loseSound = new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3');
 
 //Declared variables
 let end;
@@ -21,6 +23,7 @@ function displayScore(message){
 
 function gameOver(){
     if(is_game_running){
+        playSound(loseSound);
         for(let i = 0; i < boundaries.length; i++)
             boundaries[i].style.backgroundColor = "rgb(243, 159, 159)"; 
         if(score > 0)
@@ -83,8 +86,14 @@ function displayTimer(time) {
     document.getElementById("timer").innerText = `Time Left: ${time}s`;
 }
 
+function playSound(sound) {
+    sound.currentTime = 0; // Reset sound to start
+    sound.play().catch(error => console.log("Sound play failed:", error));
+}
+
 function endGame(){
     if(is_game_running){
+        playSound(winSound);
         clearInterval(timeInterval); // Stop the timer
         for(let i = 0; i < boundaries.length; i++)
             boundaries[i].style.backgroundColor = "rgb(113 225 141)"; 
@@ -102,7 +111,7 @@ function loadPage(){
 
     timerDisplay = document.createElement("div");
     timerDisplay.id = "timer";
-    timerDisplay.innerText = `Time Left: ${timeLeft}s`;
+    timerDisplay.innerText = "Time Left: ", timeLeft, "s";
     document.body.appendChild(timerDisplay);
     createResetButton();
     end.addEventListener("mouseover", endGame);
