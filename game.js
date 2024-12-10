@@ -1,15 +1,18 @@
 //Initialized variables
 let is_game_running = false; 
 let score = 0;
+let timeInterval = null;
+let coins = [];
+const COIN_SCORE = 5;
 let winSound = new Audio('https://www.soundjay.com/buttons/sounds/button-12.mp3');
 let loseSound = new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3');
+let collectSound = new Audio('https://www.soundjay.com/buttons/sounds/button-21.mp3');
 
 //Declared variables
 let end;
 let start;
 let timeLeft;
 let boundaries;
-let timeInterval;
 let timerDisplay;
 let status_display;
 let resetButton;
@@ -35,12 +38,16 @@ function gameOver(){
 
 function startGame(){
     displayScore("");
-    is_game_running = true;
+    is_game_running = true; 
+    if (timeInterval) {
+        clearInterval(timeInterval);
+    }
     timeLeft = 5;
-    displayTimer(timeLeft)
-    timeInterval = setInterval(updateTimer, 1000); // Update the timer every second
+    displayTimer(timeLeft);
+    timeInterval = setInterval(updateTimer, 1000);
     for(let i = 0; i < boundaries.length; i++)
         boundaries[i].style.backgroundColor = "#eeeeee";
+    createCoins();
 }
 
 function createResetButton() {
@@ -63,13 +70,16 @@ function createResetButton() {
 function resetGame() {
     score = 0;
     displayScore("Game Reset!");
-    clearInterval(timeInterval);
+    if (timeInterval) {
+        clearInterval(timeInterval);
+    }
     timeLeft = 5;
     displayTimer(timeLeft);
     for(let i = 0; i < boundaries.length; i++) {
         boundaries[i].style.backgroundColor = "#eeeeee";
     }
     is_game_running = false;
+    createCoins();
 }
 
 function updateTimer() {
@@ -86,6 +96,47 @@ function displayTimer(time) {
     document.getElementById("timer").innerText = `Time Left: ${time}s`;
 }
 
+function createCoins() {
+    coins.forEach(coin => coin.remove());
+    coins = [];
+
+    const gameDiv = document.getElementById("game");
+    
+    const positions = [
+        { top: "235px", left: "120px" },
+        { top: "150px", left: "330px" },
+        { top: "220px", left: "400px" }
+    ];
+
+    positions.forEach(pos => {
+        const coin = document.createElement("div");
+        coin.className = "coin";
+        coin.style.position = "absolute";
+        coin.style.width = "10px";
+        coin.style.height = "10px";
+        coin.style.backgroundColor = "gold";
+        coin.style.borderRadius = "50%";
+        coin.style.top = pos.top;
+        coin.style.left = pos.left;
+        coin.style.zIndex = "100";
+        
+        coin.addEventListener("mouseover", collectCoin);
+        gameDiv.appendChild(coin);
+        coins.push(coin);
+    });
+}
+
+function collectCoin(event) {
+    if (is_game_running) {
+        playSound(collectSound);
+        const coin = event.target;
+        coin.style.display = "none";
+        score += COIN_SCORE;
+        displayScore("Coin collected! +" + COIN_SCORE + " points");
+        playSound(collectSound);
+    }
+}
+
 function playSound(sound) {
     sound.currentTime = 0; // Reset sound to start
     sound.play().catch(error => console.log("Sound play failed:", error));
@@ -94,7 +145,9 @@ function playSound(sound) {
 function endGame(){
     if(is_game_running){
         playSound(winSound);
-        clearInterval(timeInterval); // Stop the timer
+        if (timeInterval) {
+            clearInterval(timeInterval);
+        }
         for(let i = 0; i < boundaries.length; i++)
             boundaries[i].style.backgroundColor = "rgb(113 225 141)"; 
         score = score + 5;
@@ -119,4 +172,5 @@ function loadPage(){
     for(let i = 0; i < boundaries.length; i++){
         boundaries[i].addEventListener("mouseover", gameOver);
     }
+    createCoins();
 }
