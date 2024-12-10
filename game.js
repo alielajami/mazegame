@@ -36,7 +36,7 @@ function gameOver(){
 function startGame(){
     displayScore("");
     is_game_running = true;
-    timeLeft = 3;
+    timeLeft = 5;
     displayTimer(timeLeft)
     timeInterval = setInterval(updateTimer, 1000); // Update the timer every second
     for(let i = 0; i < boundaries.length; i++)
@@ -64,7 +64,7 @@ function resetGame() {
     score = 0;
     displayScore("Game Reset!");
     clearInterval(timeInterval);
-    timeLeft = 30;
+    timeLeft = 5;
     displayTimer(timeLeft);
     for(let i = 0; i < boundaries.length; i++) {
         boundaries[i].style.backgroundColor = "#eeeeee";
